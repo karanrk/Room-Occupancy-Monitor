@@ -1,8 +1,10 @@
+//Room Occupancy Monitor code
 
-#define PIN1 D6 //desired output pin
-#define PIN2 D2 //input pin to read PIR sensor
-int state=0;  //keep track of status
-String data = String(20); // data to be sent
+#define PIN1 D3 //desired output pin
+#define PIN2 D5 //input pin to read PIR sensor
+int state=LOW; //keep track of status
+int value=0;   //variable to hold input of PIR
+bool initialDelay=false;
 
 void setup(){
 	
@@ -18,12 +20,17 @@ void setup(){
 
 void loop(){
 
+//Initial delay before capturing the PIR data
+if (initialDelay==false){
+	delay(10000);
+	initialDelay=true;
+}
+
 //Get the input of PIR
+value = digitalRead(PIN2);
 
-int value = digitalRead(PIN2);
-
-if (value==1){
-	if (state==0){
+if (value == HIGH){
+	if (state == LOW){
 	//change state if PIR detects motion and previous state is 0
 		state=1;
 		
@@ -36,7 +43,7 @@ if (value==1){
 	else{
 		//send the status as not occupied to Google cloud using webhook integrator
 
-		if (state == 1){
+		if (state == HIGH){
 				state=0;
 				digitalWrite(PIN1,LOW);
 				myPublish("ROOM-420","Not Occupied");
